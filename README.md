@@ -4,6 +4,9 @@
 
 **Link every slide to the notes that explain it. No screenshots.**
 
+[![PyPI](https://img.shields.io/pypi/v/slidenotes.svg)](https://pypi.org/project/slidenotes/)
+[![Downloads](https://static.pepy.tech/badge/slidenotes)](https://pepy.tech/project/slidenotes)
+[![Downloads/month](https://static.pepy.tech/badge/slidenotes/month)](https://pepy.tech/project/slidenotes)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 ![Status](https://img.shields.io/badge/status-v0.1%20in%20development-orange.svg)

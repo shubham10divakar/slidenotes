@@ -55,8 +55,10 @@ sn = "slidenotes.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/slidenotes"]
+core-metadata-version = "2.4"
 
 [tool.hatch.build.targets.sdist]
+core-metadata-version = "2.4"
 include = ["src/slidenotes", "tests", "README.md", "GUIDE.md", "CHANGELOG.md", "LICENSE", "v1"]
 
 [tool.pytest.ini_options]

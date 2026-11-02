@@ -25,50 +25,50 @@ Word support comes after the core because it is the riskiest part; building it o
 
 ### Phase 0: Skeleton
 
-- [ ] Create repo, `pyproject.toml` with `sn` entry point, src layout
-- [ ] Typer app with stub commands and `--help` text
-- [ ] Test fixtures: sample.pdf (10 pages), sample.md, sample.txt, sample.docx, sample.pptx
-- [ ] GitHub Actions matrix: Windows, macOS, Linux × Python 3.10 to 3.13
+- [x] Create repo, `pyproject.toml` with `sn` entry point, src layout
+- [x] Typer app with stub commands and `--help` text
+- [x] Test fixtures: sample.pdf (10 pages), sample.md, sample.txt, sample.docx, sample.pptx
+- [x] GitHub Actions matrix: Windows, macOS, Linux × Python 3.10 to 3.13
 
 **Done when:** `pip install -e .` then `sn --help` works on all three OSes in CI.
 
 ### Phase 1: Core links with Markdown and text notes
 
-- [ ] `slideset.py`: parse, format, contains, validate against page count
-- [ ] `sidecar.py`: front matter + table read/write, atomic save, preserve free text
-- [ ] `library.py`: add/update rows, rebuild
-- [ ] Markdown and text adapters: sections, find, slug, extract
-- [ ] Commands: `add`, `link`, `unlink`, `show`, `map`, `sections`, `list`
-- [ ] PDF source adapter: page count and SHA-256
+- [x] `slideset.py`: parse, format, contains, validate against page count
+- [x] `sidecar.py`: front matter + table read/write, atomic save, preserve free text
+- [x] `library.py`: add/update rows, rebuild
+- [x] Markdown and text adapters: sections, find, slug, extract
+- [x] Commands: `add`, `link`, `unlink`, `show`, `map`, `sections`, `list`
+- [x] PDF source adapter: page count and SHA-256
 
 **Done when:** on sample.pdf, slide 4 links to three sections in two files, one section links to slides 3, 7 and 9, and `sn show` returns exactly those; the sidecar round-trips byte-identical.
 
 ### Phase 2: Word notes
 
-- [ ] docx adapter: list Heading-styled and bold paragraphs as sections
-- [ ] Insert `sn_<slug>` bookmarks with targeted lxml edits
-- [ ] Section extraction up to the next heading of the same or higher level
-- [ ] `~$` lock-file detection; one-time backup to `.slidenotes/backup/`
-- [ ] Optional `--page N`: LibreOffice pagination, confirm paragraph, then bookmark; clear message when LibreOffice is missing
-- [ ] Safety tests: text and non-bookmark XML unchanged after linking
+- [x] docx adapter: list Heading-styled and bold paragraphs as sections
+- [x] Insert `sn_<slug>` bookmarks with targeted lxml edits
+- [x] Section extraction up to the next heading of the same or higher level
+- [x] `~$` lock-file detection; one-time backup to `.slidenotes/backup/`
+- [x] Optional `--page N`: LibreOffice pagination, confirm paragraph, then bookmark; clear message when LibreOffice is missing
+- [x] Safety tests: text and non-bookmark XML unchanged after linking
 
 **Done when:** the real Lecture_1.docx gets 10 links, opens cleanly in Word and LibreOffice, and its text is unchanged.
 
 ### Phase 3: Integrity
 
-- [ ] `sn check`: missing files, hash changes, broken anchors, out-of-range slides
-- [ ] `sn check --fix`: re-find by hash, refresh labels, suggest closest heading
-- [ ] `--json` on `show`, `map`, `list`, `check`
-- [ ] Warnings surfaced in `sn list`
+- [x] `sn check`: missing files, hash changes, broken anchors, out-of-range slides
+- [x] `sn check --fix`: re-find by hash, refresh labels, suggest closest heading
+- [x] `--json` on `show`, `map`, `list`, `check`
+- [x] Warnings surfaced in `sn list`
 
 **Done when:** each failure type, induced in a test, is reported with the fixing command, and `--fix` repairs moved files and renamed headings.
 
 ### Phase 4: PPT, convert and release
 
-- [ ] PPT/PPTX adapter: LibreOffice conversion with cache, python-pptx fallback
-- [ ] `sn convert`: pandoc Word to Markdown, images to `assets/`, sidecar rows rewritten
-- [ ] `sn open` on Windows, macOS, Linux
-- [ ] README with the example session; CHANGELOG
+- [x] PPT/PPTX adapter: LibreOffice conversion with cache, python-pptx fallback
+- [x] `sn convert`: pandoc Word to Markdown, images to `assets/`, sidecar rows rewritten
+- [x] `sn open` on Windows, macOS, Linux
+- [x] README with the example session; CHANGELOG
 - [ ] Publish `slidenotes 0.1.0` to PyPI
 
 **Done when:** `pip install slidenotes` on a clean machine runs the full example session against a CS224N PDF and a .pptx.

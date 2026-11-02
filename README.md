@@ -7,9 +7,8 @@
 [![PyPI](https://img.shields.io/pypi/v/slidenotes.svg)](https://pypi.org/project/slidenotes/)
 [![Downloads](https://static.pepy.tech/badge/slidenotes)](https://pepy.tech/project/slidenotes)
 [![Downloads/month](https://static.pepy.tech/badge/slidenotes/month)](https://pepy.tech/project/slidenotes)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/shubham10divakar/slidenotes/blob/main/LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
-![Status](https://img.shields.io/badge/status-v0.1%20in%20development-orange.svg)
 
 </div>
 
@@ -39,12 +38,12 @@ sn show lecture1.pdf 4
 pip install slidenotes
 ```
 
-> v0.1 is under active development and not on PyPI yet. Follow the [roadmap](v1/ROADMAP.md).
+Python 3.10+. Optional: [LibreOffice](https://www.libreoffice.org/) for PowerPoint decks, [pandoc](https://pandoc.org/) for `sn convert`.
 
 ## Learn more
 
-- [Guide](GUIDE.md): every command, option and file format
-- [Design](v1/DESIGN.md) · [Features](v1/FEATURES.md) · [Roadmap](v1/ROADMAP.md)
+- [Guide](https://github.com/shubham10divakar/slidenotes/blob/main/GUIDE.md): every command, option and file format
+- [Design](https://github.com/shubham10divakar/slidenotes/blob/main/v1/DESIGN.md) · [Features](https://github.com/shubham10divakar/slidenotes/blob/main/v1/FEATURES.md) · [Roadmap](https://github.com/shubham10divakar/slidenotes/blob/main/v1/ROADMAP.md) · [Changelog](https://github.com/shubham10divakar/slidenotes/blob/main/CHANGELOG.md)
 
 <div align="center">
 <sub>MIT licensed · Built by Subham Divakar</sub>

@@ -2,7 +2,7 @@
 
 The full reference for SlideNotes v0.1: every command, option, file format and behaviour.
 
-> **Status:** v0.1 is in development. This guide describes the planned behaviour from [v1/DESIGN.md](v1/DESIGN.md). Where they disagree, the design doc wins.
+> Covers **slidenotes 0.1.0**. Design background: [v1/DESIGN.md](v1/DESIGN.md).
 
 ## Contents
 
@@ -150,7 +150,9 @@ What it does:
 - **Markdown / text:** resolves the heading to its slug; nothing is written to the notes file.
 - **Word:** inserts an invisible bookmark `sn_<slug>` on the matched paragraph (after a one-time backup and a lock check).
 - Adds a row to the sidecar, kept sorted by first slide, then notes file.
+- Linking a section that already has a row **merges** the slides into that row: `sn link deck.pdf 3 X` then `sn link deck.pdf 7 X` gives one row `3, 7`.
 - Rerunning the same link changes nothing.
+- `--page` shows the paragraph it picked and asks before bookmarking; `--yes` skips the question (needed in scripts).
 
 ```bash
 sn link lecture1.pdf 4-6 "2.1 One-Hot Representation"
@@ -164,9 +166,10 @@ sn link lecture1.pdf 9 lecture1.docx --page 3
 sn unlink SOURCE SLIDES [NOTES] TARGET [--purge] [--dry-run]
 ```
 
-- Removes the matching rows from the sidecar.
+- `TARGET` can be the anchor (`sn_wordnet`), the label, or heading text.
+- Removes the given slides from matching rows: a row `3, 7` unlinked at `7` becomes `3`; a row left with no slides is deleted.
 - Word bookmarks are **kept** by default (harmless, invisible, reusable).
-- `--purge` also removes the bookmark when no other row uses it.
+- `--purge` also removes the bookmark when no row in any registered sidecar uses it.
 
 ### `sn show` — read the notes for a slide
 
@@ -218,21 +221,29 @@ Checks one sidecar, or all of them if `SOURCE` is omitted. Reports:
 | Anchor not found | heading renamed, bookmark deleted |
 | Slide out of range | slide 40 in a 32-page deck |
 
-Exit code `1` if anything is wrong.
+Exit code `1` if anything is wrong. Also reported: notes used by a row but missing from the header, and library rows whose sidecar was deleted.
 
 `--fix` repairs what it can:
 
-- Re-finds moved files by hash.
+- Re-finds a moved **source by hash** (searching the sidecar's folder and its parent).
+- Re-finds moved **notes by file name** (same search; only when exactly one file matches).
 - Refreshes labels from current heading text.
-- Re-resolves renamed headings when exactly one candidate clearly matches. Otherwise it asks.
+- Re-resolves renamed headings when exactly one candidate clearly matches. Otherwise it asks (in a terminal) or skips.
+- Re-inserts a deleted Word bookmark when the paragraph text is still there.
+- Accepts a **changed source** (new hash and page count) only after confirmation, or with `--yes`.
+- Removes library rows whose sidecar no longer exists.
+
+`--dry-run` shows the fixes without writing them.
 
 ### `sn open` — open in your apps
 
 ```text
-sn open SOURCE [SLIDE]
+sn open SOURCE [SLIDE] [--notes-only | --source-only]
 ```
 
-Opens the source in the system viewer (at `SLIDE` where the viewer supports it) and the notes file in its default app. For PPT without LibreOffice, opens the `.pptx` itself.
+- Opens the source in the system viewer, at `SLIDE` when a viewer that accepts a page is installed (SumatraPDF or Acrobat on Windows; zathura, evince or okular on Linux). Otherwise it opens normally and tells you the page.
+- With `SLIDE`, opens every notes file linked to that slide; without it, the first notes file.
+- PPT/PPTX open as the converted PDF when a cached conversion exists, else the deck itself.
 
 ### `sn library rebuild` — regenerate the library
 
@@ -240,15 +251,24 @@ Opens the source in the system viewer (at `SLIDE` where the viewer supports it) 
 sn library rebuild [--dry-run]
 ```
 
-The library is only a cache of the sidecars. This rescans known folders and rewrites `library.md`, so deleting it is safe.
+```text
+sn library rebuild [FOLDER ...] [--dry-run]
+sn library path
+```
+
+The library is only a cache of the sidecars. `rebuild` rescans the folders of the sidecars already listed plus the given folders (default: the current folder), recursively, and rewrites `library.md`, so deleting it is safe. `path` prints where the library lives.
 
 ### `sn convert` — Word to Markdown, once
 
 ```text
-sn convert NOTES.docx [--dry-run]
+sn convert NOTES.docx [--force] [--dry-run]
 ```
 
-Needs pandoc. Converts the Word file to Markdown, extracts images to `assets/`, and rewrites the sidecar rows to point at the new headings. The original `.docx` is not deleted.
+Needs pandoc. Converts the Word file to `NOTES.md` next to it (GitHub Markdown), extracts images to `assets/`, and rewrites the rows of every sidecar that links into it to point at the new headings.
+
+- A linked **bold-text heading** becomes a real Markdown heading, one level below the heading above it.
+- Rows that can't be matched stay on the `.docx`, with a warning.
+- The original `.docx` is not changed or deleted. `--force` overwrites an existing `NOTES.md`.
 
 ---
 
@@ -257,6 +277,8 @@ Needs pandoc. Converts the Word file to Markdown, extracts images to `assets/`, 
 | Option | On | Effect |
 | --- | --- | --- |
 | `--dry-run` | every writing command | Print what would change; write nothing |
+| `--yes`, `-y` | `link`, `check` | Answer yes to confirmations (`--page`, accepting a changed source) |
+| `--version`, `-V` | `sn` | Print the version |
 | `--json` | `show`, `map`, `list`, `check`, `sections` | Machine-readable output, for scripts and the future GUI |
 | `--help` | every command | Usage and options |
 
@@ -277,7 +299,9 @@ Tip: run `sn sections NOTES` first and copy a heading from the output.
 **Section extent** (what `sn show` prints):
 
 - Markdown and Word headings: from the anchor to the next heading of the same or higher level.
-- A bookmark on a plain (non-heading) paragraph: to the next heading of any level.
+- A bookmark on a plain or bold-text paragraph: to the next heading of any level, or the next bold-text heading.
+
+A Word paragraph counts as a **bold-text heading** when all its text is bold and it is at most 150 characters.
 
 **Why not Word page numbers?** A `.docx` stores no pages. Word recalculates them on every render, so they change with every edit and differ between machines. `--page N` is only a way to pick a paragraph once. The link itself is always the bookmark.
 
@@ -399,6 +423,8 @@ lecture1.docx: anchor sn_one_hot not found (heading renamed?) → run sn check -
 | Variable | Default | Effect |
 | --- | --- | --- |
 | `SLIDENOTES_HOME` | `~/.slidenotes` | Where `library.md` lives |
+| `SLIDENOTES_SOFFICE` | found on PATH or in the usual install folder | Path to LibreOffice's `soffice` |
+| `SLIDENOTES_PANDOC` | found on PATH | Path to `pandoc` |
 
 There is one global library. Per-folder filtering (`sn list cs224n`) may come later.
 
@@ -429,19 +455,29 @@ src/slidenotes/
   notes/              base, markdown, text, docx adapters
   sources/            base, pdf, ppt adapters
   util/               paths, hashing, config
-tests/fixtures/       sample.pdf, .pptx, .md, .txt, .docx
+tests/conftest.py     builds sample.pdf, .md, .txt, .docx (and .pptx) in a temp folder
 ```
 
 The core knows only links and slide sets. Each notes and source format is an adapter (`NotesAdapter`, `SourceAdapter`), so adding a format never touches the core. Details: [v1/DESIGN.md §5](v1/DESIGN.md#5-architecture).
 
 ### Dependencies
 
-`typer`, `rich`, `pypdf`, `python-docx` (+ `lxml`), `pyyaml`. Optional: `python-pptx`, LibreOffice, pandoc.
+`typer`, `rich`, `pypdf`, `lxml`, `pyyaml`. Optional: `python-pptx`, LibreOffice, pandoc.
+
+Word files are read and edited directly with `lxml` (not python-docx), so only `word/document.xml` is ever re-serialised and every other part is copied as-is.
 
 ### Tests
 
 ```bash
-pytest
+pytest                    # LibreOffice tests skip themselves when soffice is missing
+```
+
+### Release
+
+```bash
+python -m build
+twine check dist/*
+twine upload dist/*
 ```
 
 - Unit tests: slide-set parsing, sidecar round-trip, slug generation.
